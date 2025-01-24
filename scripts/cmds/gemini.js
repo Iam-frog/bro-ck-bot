@@ -6,7 +6,7 @@ module.exports = {
   config: {
     name: "gemini",
     version: "1.1",
-    author: "UPoL Apis 🐔",
+    author: "UPoL 🐔",
     role: 0,
     category: "ai"
   },
@@ -18,7 +18,9 @@ module.exports = {
       return message.reply("👀 Please provide a prompt.");
     }
 
-    await message.reply("⏳ Please wait.....");
+    const wait = await message.reply("⏳ Please wait.....");
+
+    message.unsend(wait, messageID);
 
     try {
       if (prompt.toLowerCase().includes('imagine')) {
