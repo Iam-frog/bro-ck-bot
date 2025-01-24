@@ -19,7 +19,9 @@ module.exports = {
       return message.reply("👀 Please provide a prompt.");
     }
 
-    await message.reply("⏳ Please wait.....");
+    const wait = message.reply("⏳ Please wait.....");
+
+    message.unsend(wait, event.messageID);
 
     try {
       if (prompt.toLowerCase().includes('imagine')) {
