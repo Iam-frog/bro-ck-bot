@@ -20,7 +20,7 @@ module.exports = {
 
     const wait = await message.reply("⏳ Please wait.....");
 
-    message.unsend(wait, messageID);
+    message.unsend(wait, event.messageID);
 
     try {
       if (prompt.toLowerCase().includes('imagine')) {
