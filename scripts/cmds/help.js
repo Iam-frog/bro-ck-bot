@@ -54,10 +54,15 @@ module.exports = {
 ╰─✧ cmd
 ╰─✧ eval
 
+╭─『 $ IMAGE 』
+╰─✧ dai3 
+╰─✧ poli2
+
 ╭─『 IMAGINATION 』
 ╰─✧ imagine
 ╰─✧ flux
 ╰─✧ prodia
+╰─✧ poli
 
 ╭─『 ANIME IMAGINATION 』
 ╰─✧ cr 
