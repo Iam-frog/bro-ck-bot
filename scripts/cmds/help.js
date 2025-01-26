@@ -75,7 +75,7 @@ module.exports = {
 ╰─✧ yt\n\n╭─『  » Total Cmds %4 cmds.\n╰─ » Type %5help <cmd> to learn.\n╰─ %6`,
       help2: "%1├───────✧\n╰─ » Currently, the bot has %2 commands that can be used\n╰─ » Total Cmds: %3 \n╰─ %4\n",
       commandNotFound: "Command \"%1\" does not exist",
-      getInfoCommand: "» "%1"\n» Author: %8\n» Description: %2\n» Guide: %9",
+      getInfoCommand: "» \"%1\"\n» Author: %8\n» Description: %2\n» Guide: %9",
       onlyInfo: "✧ Command name: %1\n╰─✧ Version: %5\n╰─✧ Role: %6\n╰─✧ Author: %8",
       onlyUsage: "Usage: %1",
       onlyAlias: "Other names: %1\nOther names in your group: %2",
