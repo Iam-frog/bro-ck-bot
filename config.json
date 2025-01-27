@@ -18,19 +18,19 @@
     "ignoreCommand": []
   },
   "adminBot": [
-    "100068507486779",
-    "100012198960574",
-    "100083406810329",
-    "61561104339228",
-    "100078193001468",
-    "61550952520786"
+    "",
+    "61567813094077",
+    "61572088133980",
+    "61567813094077",
+    "",
+    ""
   ],
   "whiteListMode": {
     "enable": false,
     "whiteListIds": [],
     "notes": "if you enable this feature, only the ids in the whiteListIds section can use the bot"
   },
-  "nickNameBot": "UPoL",
+  "nickNameBot": "NAGI 🐔",
   "prefix": "*",
   "database": {
     "type": "sqlite",
