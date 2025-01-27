@@ -42,9 +42,6 @@ module.exports = {
 ╰─✧ hercai 
 ╰─✧ gemini
 
-╭─『 SIMSIMI 』
-╰─✧ chat
-
 ╭─『 VOICE-AI 』
 ╰─✧ vai
 
@@ -56,12 +53,13 @@ module.exports = {
 
 ╭─『 $ IMAGE 』
 ╰─✧ dai3 
+╰─✧ fluxpro
+╰─✧ pony
 ╰─✧ poli2
 
 ╭─『 IMAGINATION 』
 ╰─✧ imagine
 ╰─✧ flux
-╰─✧ prodia
 ╰─✧ poli
 
 ╭─『 ANIME IMAGINATION 』
