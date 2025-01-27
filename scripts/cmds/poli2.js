@@ -4,7 +4,7 @@ const { getStreamFromURL } = global.utils;
 module.exports = {
   config: {
     name: "poli2",
-    version: "1.0",
+    version: "1.2",
     author: "UPoL 🐔",
     countDown: 0,
     longDescription: {
@@ -13,61 +13,58 @@ module.exports = {
     category: "image",
     role: 0,
     guide: {
-      en: "{pn} <prompt> --ar <aspect ratio>"
+      en: "{pn} <prompt> --ar <aspect ratio>\nDefault aspect ratio: 1:1"
     }
   },
 
   onStart: async function ({ api, event, args, message }) {
     const input = args.join(' ').trim();
 
-    // Parse prompt and aspect ratio from input
     const promptMatch = input.match(/^(.*?)\s*--ar\s*([\d:]+)/);
-    if (!promptMatch) {
-      return message.reply("Please provide a valid prompt and aspect ratio using the format: <prompt> --ar <aspect ratio>.");
+    const prompt = promptMatch ? promptMatch[1].trim() : input;
+    const ar = promptMatch ? promptMatch[2].trim() : "1:1"; 
+
+    if (!prompt) {
+      return message.reply("❌ Please provide a valid prompt to generate an image.");
     }
 
-    const prompt = promptMatch[1].trim();
-    const ar = promptMatch[2].trim();
+    const waitMessage = await message.reply(
+      "✨ Creating Your Masterpiece...\n\n📜 Prompt:" +
+      `_${prompt}_\n📐 Aspect Ratio: _${ar}_\n\n⏳ Hang tight! This might take a few seconds...`
+    );
 
-    if (!prompt || !ar) {
-      return message.reply("Prompt or aspect ratio is missing. Please check your input and try again.");
-    }
+    try {
+      const apiUrl = `https://upol-poli3.onrender.com/poli?prompt=${encodeURIComponent(prompt)}&ar=${encodeURIComponent(ar)}`;
+      const response = await axios.get(apiUrl);
+      const { combineUrl, images } = response.data;
 
-     const wait = message.reply("Creating......!", async (err, info) => {
-      if (err) return console.error(err);
-
-      try {
-        const apiUrl = `https://upol-poli3.onrender.com/poli?prompt=${encodeURIComponent(prompt)}&ar=${encodeURIComponent(ar)}`;
-        const response = await axios.get(apiUrl);
-        const { combineUrl, images } = response.data;
-
-       unsend.message(wait, event.messageID);
-
-        if (!combineUrl || !images || !images.length) {
-          return message.reply("Failed to generate images. Please try again.");
-        }
-
-        message.reply(
-          {
-            body: "✨ Image generated successfully!\nReply with a number (1, 2, 3, or 4) to view individual images.",
-            attachment: await getStreamFromURL(combineUrl, "combined.png"),
-          },
-          (err, info) => {
-            if (err) return console.error(err);
-
-            global.GoatBot.onReply.set(info.messageID, {
-              commandName: this.config.name,
-              messageID: info.messageID,
-              author: event.senderID,
-              images, // Store the images array
-            });
-          }
-        );
-      } catch (error) {
-        console.error(error);
-        message.reply("An error occurred while generating images. Please try again.");
+      if (!combineUrl || !images || !images.length) {
+        await api.unsendMessage(waitMessage.messageID); 
+        return message.reply("❌ Failed to generate images. Please try again.");
       }
-    });
+
+      await api.unsendMessage(waitMessage.messageID); 
+      message.reply(
+        {
+          body: "✨ Image generated successfully!\n\n Reply with a number (1, 2, 3, or 4) to view individual images.",
+          attachment: await getStreamFromURL(combineUrl, "combined.png"),
+        },
+        (err, info) => {
+          if (err) return console.error(err);
+
+          global.GoatBot.onReply.set(info.messageID, {
+            commandName: this.config.name,
+            messageID: info.messageID,
+            author: event.senderID,
+            images, 
+          });
+        }
+      );
+    } catch (error) {
+      console.error(error);
+      await api.unsendMessage(waitMessage.messageID); 
+      message.reply("❌ An error occurred while generating images. Please try again.");
+    }
   },
 
   onReply: async function ({ api, event, Reply, args, message }) {
@@ -90,12 +87,12 @@ module.exports = {
 
       const imageStream = await getStreamFromURL(selectedImage, `image${userChoice}.png`);
       message.reply({
-        body: `✅ Here is your selected image (${userChoice}).`,
+        body: `✅ **Here is your selected image (${userChoice}).**`,
         attachment: imageStream,
       });
     } catch (error) {
       console.error(error);
-      message.reply("An error occurred while fetching the image. Please try again.");
+      message.reply("❌ An error occurred while fetching the image. Please try again.");
     }
   },
 };
