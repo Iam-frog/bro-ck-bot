@@ -33,13 +33,15 @@ module.exports = {
       return message.reply("Prompt or aspect ratio is missing. Please check your input and try again.");
     }
 
-    message.reply("Creating......!", async (err, info) => {
+     const wait = message.reply("Creating......!", async (err, info) => {
       if (err) return console.error(err);
 
       try {
         const apiUrl = `https://upol-poli3.onrender.com/poli?prompt=${encodeURIComponent(prompt)}&ar=${encodeURIComponent(ar)}`;
         const response = await axios.get(apiUrl);
         const { combineUrl, images } = response.data;
+
+       unsend.message(wait, event.messageID);
 
         if (!combineUrl || !images || !images.length) {
           return message.reply("Failed to generate images. Please try again.");
