@@ -5,30 +5,16 @@ const path = require("path");
 module.exports = {
   config: {
     name: "yt",
-    version: "1.2",
+    version: "1.3",
     author: "UPoL 🐔",
     countDown: 5,
     role: 0,
-    description: {
-      en: "Search and download video or audio from YouTube."
-    },
+    description: "Search and download videos or audio from YouTube.",
     category: "media",
-    guide: {
-      en: "   {pn} -v [<video name>]: search and download video\n   {pn} -a [<video name>]: search and download audio"
-    }
+    guide: "   {pn} -v [<video name>]: search and download video\n   {pn} -a [<video name>]: search and download audio"
   },
 
-  langs: {
-    en: {
-      searching: "🔎 Searching for your request...",
-      choose: "%1\n\nReply with a number to choose or any other text to cancel.",
-      downloading: "⬇️ Downloading your %1, please wait...",
-      error: "❌ An error occurred: %1",
-      noResult: "⭕ No search results found for %1"
-    }
-  },
-
-  onStart: async function ({ args, message, event, getLang }) {
+  onStart: async function ({ args, message }) {
     let format;
     switch (args[0]) {
       case "-v":
@@ -38,28 +24,28 @@ module.exports = {
         format = "audio";
         break;
       default:
-        return message.SyntaxError();
+        return message.reply("Invalid option! Use `-v` for video or `-a` for audio.");
     }
 
     const query = args.slice(1).join(" ");
-    if (!query) return message.SyntaxError();
+    if (!query) return message.reply("Please provide a search query!");
 
     const searchUrl = `https://upol-ytbv2-x.onrender.com/search?query=${encodeURIComponent(query)}&format=${format}`;
 
     try {
-      await message.reply(getLang("searching"));
+      await message.reply("🔍 Hold tight! Searching for your request...");
       const searchResponse = await axios.get(searchUrl);
 
       if (!searchResponse.data || searchResponse.data.length === 0) {
-        return message.reply(getLang("noResult", query));
+        return message.reply(`❌ Sorry, no results found for "${query}". Try searching for something else.`);
       }
 
       const results = searchResponse.data;
-      let responseMessage = "🔎 Search Results:\n";
+      let responseMessage = "🔎 Here are the search results:\n";
       const thumbnails = [];
 
       results.forEach((result, index) => {
-        responseMessage += `${index + 1}. ${result.title} - ${result.channel}\n\n`;
+        responseMessage += `${index + 1}. ${result.title} by ${result.channel}\n\n`;
         thumbnails.push(result.thumbnail);
       });
 
@@ -68,7 +54,7 @@ module.exports = {
       );
 
       const replyMessage = await message.reply({
-        body: getLang("choose", responseMessage),
+        body: `${responseMessage}\nReply with the number of your choice, or send any other message to cancel.`,
         attachment: thumbnailPaths.map(path => fs.createReadStream(path))
       });
 
@@ -78,50 +64,56 @@ module.exports = {
       global.GoatBot.onReply.set(replyMessage.messageID, {
         commandName: this.config.name,
         messageID: replyMessage.messageID,
-        author: event.senderID,
+        author: message.senderID,
         format,
         results
       });
     } catch (error) {
       console.error(error);
-      return message.reply(getLang("error", error.message));
+      return message.reply(`🚨 Oops! Something went wrong: ${error.message}`);
     }
   },
 
-  onReply: async function ({ message, event, Reply, getLang }) {
+  onReply: async function ({ message, event, Reply }) {
     const { results, format, messageID } = Reply;
     const choice = parseInt(event.body);
 
     if (isNaN(choice) || choice < 1 || choice > results.length) {
-      return message.reply(getLang("error", "Invalid choice"));
+      return message.reply("⚠️ Invalid choice! Please reply with a valid number.");
     }
 
     const selected = results[choice - 1];
-    const videoUrl = `https://youtube.com/watch?v=${selected.id}`;
+    const videoID = selected.id;
 
     await message.unsend(messageID);
-    await message.reply(getLang("downloading", format));
+    await message.reply(`⬇️ Downloading your ${format} file: "${selected.title}". Please wait...`);
 
     try {
-      // Fetch the stream directly from YouTube URL
-      const stream = await global.utils.getStreamFromURL(videoUrl);
+      // Determine the format for the download API
+      const apiFormat = format === "video" ? "mp4" : "mp3";
 
-      // Determine the file extension based on format
+      // Construct the download URL
+      const downloadUrl = `https://upol-ytbv2-x.onrender.com/download?videoID=${videoID}&format=${apiFormat}`;
+
+      // Send a GET request to the download API
+      const response = await axios.get(downloadUrl, { responseType: "stream" });
+
+      // Temporary file path
       const extension = format === "video" ? "mp4" : "mp3";
       const filePath = path.join(__dirname, `download.${extension}`);
 
-      // Write the stream to a file
+      // Save the stream to a file
       const fileStream = fs.createWriteStream(filePath);
-      stream.pipe(fileStream);
+      response.data.pipe(fileStream);
 
       await new Promise((resolve, reject) => {
         fileStream.on("finish", resolve);
         fileStream.on("error", reject);
       });
 
-      // Reply with the downloaded file
+      // Send the file as an attachment
       await message.reply({
-        body: `🎉 Here's your ${format}: ${selected.title}`,
+        body: `🎉 Your ${format} file is ready! "${selected.title}" is here for you.`,
         attachment: fs.createReadStream(filePath)
       });
 
@@ -129,11 +121,12 @@ module.exports = {
       fs.unlinkSync(filePath);
     } catch (error) {
       console.error(error);
-      return message.reply(getLang("error", error.message));
+      return message.reply(`❌ Failed to download the ${format} file: ${error.message}`);
     }
   }
 };
 
+// Helper function to download thumbnails
 async function downloadThumbnail(url, index) {
   try {
     const thumbnailPath = path.join(__dirname, `thumb_${index}.jpg`);
