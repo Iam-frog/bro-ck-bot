@@ -4,7 +4,7 @@ const path = require("path");
 
 module.exports = {
   config: {
-    name: "yts",
+    name: "yt",
     category: "yt",
     author: "UPoL 🐔",
     role: 0,
@@ -54,7 +54,7 @@ module.exports = {
       });
 
       global.GoatBot.onReply.set(reply.messageID, {
-        commandName: "sing",
+        commandName: "yt",
         messageID: reply.messageID,
         results,
         format
