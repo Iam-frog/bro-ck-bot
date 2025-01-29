@@ -5,7 +5,7 @@ module.exports = {
   config: {
     name: "fj",
     aliases: ["dj"],
-    version: "1.3",
+    version: "1.4",
     author: "UPoL 🐔",
     countDown: 0,
     longDescription: {
@@ -22,22 +22,22 @@ module.exports = {
     const prompt = args.join(' ').trim();
     
     if (!prompt) {
-      return message.reply("⚠️ Describe your vision, and I shall bring it to life!");
+      return message.reply("⚠️ *Describe your vision, and I shall bring it to life!*");
     }
 
-    const waitingMessage = await message.reply("✨ Crafting your masterpiece... hold tight!");
+    const waitingMessage = await message.reply("✨ *Crafting your masterpiece... hold tight!*");
 
     try {
       const apiUrl = `https://upol-dont.onrender.com/crazy-dj?prompt=${encodeURIComponent(prompt)}`;
-      const response = await axios.get(apiUrl);
+      const response = await axios.get(apiUrl, { timeout: 120000 });
       const { combinedUrl, images } = response.data;
 
       if (!combinedUrl || !images) {
-        return message.reply("❌ Creation failed. The muse seems silent today. Try again!");
+        return message.reply("❌ *Creation failed. The muse seems silent today. Try again!*");
       }
 
       const responseMessage = await message.reply({
-        body: "🎨 Your vision is ready! Reply with: \n- U1, U2, U3, U4 → To refine a specific version.\n- Uall → To reveal all variations.",
+        body: "🎨 *Your vision is ready! Reply with:*\n\n- `U1`, `U2`, `U3`, `U4` → *To refine a specific version.*\n- `U1 U2` (etc.) → *To see multiple images at once.*\n- `UALL` → *To reveal all variations.*",
         attachment: await getStreamFromURL(combinedUrl, "combined.png"),
       });
 
@@ -53,59 +53,51 @@ module.exports = {
     } catch (error) {
       console.error(error);
       api.unsendMessage(waitingMessage.messageID);
-      message.reply("❌ An error occurred while generating. The AI gods were not pleased. Try again!");
+      message.reply("❌ *An error occurred while generating. The AI gods were not pleased. Try again!*");
     }
   },
 
   onReply: async function ({ api, event, Reply, args, message }) {
-    const userChoice = event.body.trim().toUpperCase();
+    const userChoices = event.body.trim().toUpperCase().split(/\s+/); // Split input into an array
     const { author, images } = Reply;
 
     if (event.senderID !== author) {
-      return message.reply("⚠️ Only the original creator can refine this generation.");
+      return message.reply("⚠️ *Only the original creator can refine this generation.*");
     }
 
     const validChoices = { U1: "image1", U2: "image2", U3: "image3", U4: "image4" };
 
-    if (userChoice === "Uall") {
-      try {
-        const attachments = await Promise.all(
-          Object.values(validChoices).map(async (key) => {
-            if (!images[key]) return null;
-            return await getStreamFromURL(images[key], `${key}.png`);
-          })
-        );
+    let selectedImages = [];
 
-        message.reply({
-          body: "🎭 Here’s your full artistic suite—choose your inspiration wisely!",
-          attachment: attachments.filter(Boolean),
-        });
-      } catch (error) {
-        console.error(error);
-        message.reply("❌ Something went wrong while fetching all images. The AI spirits are restless. Try again!");
-      }
-      return;
+    if (userChoices.includes("UALL")) {
+      // If "UALL" is chosen, send all images
+      selectedImages = Object.values(validChoices).map(key => images[key]).filter(Boolean);
+    } else {
+      // Otherwise, check each choice and add the corresponding image
+      userChoices.forEach(choice => {
+        if (validChoices[choice] && images[validChoices[choice]]) {
+          selectedImages.push(images[validChoices[choice]]);
+        }
+      });
     }
 
-    const selectedImageKey = validChoices[userChoice];
-    if (!selectedImageKey) {
-      return message.reply("⚠️ Invalid selection. Try U1, U2, U3, U4, or UALL.");
+    if (selectedImages.length === 0) {
+      return message.reply("⚠️ *Invalid selection. Try U1, U2, U3, U4, or UALL.*");
     }
 
     try {
-      const selectedImage = images[selectedImageKey];
-      if (!selectedImage) {
-        return message.reply("❌ Oops! That image doesn’t exist. Try another one.");
-      }
+      const attachments = await Promise.all(
+        selectedImages.map(async (image, index) => await getStreamFromURL(image, `image${index + 1}.png`))
+      );
 
-      const imageStream = await getStreamFromURL(selectedImage, `${selectedImageKey}.png`);
       message.reply({
-        body: `🖌️ Here is ${userChoice}—a glimpse into the world you imagined!`,
-        attachment: imageStream,
+        body: `🖌️ *Here is your selection (${userChoices.join(", ")})—a glimpse into the world you imagined!*`,
+        attachment: attachments,
       });
+
     } catch (error) {
       console.error(error);
-      message.reply("❌ Something went wrong fetching the image. The AI muse is momentarily distracted. Try again!");
+      message.reply("❌ *Something went wrong fetching the images. The AI muse is momentarily distracted. Try again!*");
     }
   },
 };
