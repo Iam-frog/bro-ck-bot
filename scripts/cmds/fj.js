@@ -22,10 +22,10 @@ module.exports = {
     const prompt = args.join(' ').trim();
     
     if (!prompt) {
-      return message.reply("⚠️ *Describe your vision, and I shall bring it to life!*");
+      return message.reply("⚠️ Describe your vision, and I shall bring it to life!");
     }
 
-    const waitingMessage = await message.reply("✨ *Crafting your masterpiece... hold tight!*");
+    const waitingMessage = await message.reply("✨ Crafting your masterpiece... hold tight!");
 
     try {
       const apiUrl = `https://upol-dont.onrender.com/crazy-dj?prompt=${encodeURIComponent(prompt)}`;
@@ -33,11 +33,11 @@ module.exports = {
       const { combinedUrl, images } = response.data;
 
       if (!combinedUrl || !images) {
-        return message.reply("❌ *Creation failed. The muse seems silent today. Try again!*");
+        return message.reply("❌ Creation failed. The muse seems silent today. Try again!");
       }
 
       const responseMessage = await message.reply({
-        body: "🎨 *Your vision is ready! Reply with:*\n\n- `U1`, `U2`, `U3`, `U4` → *To refine a specific version.*\n- `U1 U2` (etc.) → *To see multiple images at once.*\n- `UALL` → *To reveal all variations.*",
+        body: "🎨 Your vision is ready! Reply with:\n\n- `U1`, `U2`, `U3`, `U4` → To refine a specific version.\n- `U1 U2` (etc.) → To see multiple images at once.\n- `UALL` → To reveal all variations.",
         attachment: await getStreamFromURL(combinedUrl, "combined.png"),
       });
 
@@ -53,7 +53,7 @@ module.exports = {
     } catch (error) {
       console.error(error);
       api.unsendMessage(waitingMessage.messageID);
-      message.reply("❌ *An error occurred while generating. The AI gods were not pleased. Try again!*");
+      message.reply("❌ An error occurred while generating. The AI gods were not pleased. Try again!");
     }
   },
 
@@ -62,7 +62,7 @@ module.exports = {
     const { author, images } = Reply;
 
     if (event.senderID !== author) {
-      return message.reply("⚠️ *Only the original creator can refine this generation.*");
+      return message.reply("⚠️ Only the original creator can refine this generation.");
     }
 
     const validChoices = { U1: "image1", U2: "image2", U3: "image3", U4: "image4" };
@@ -82,7 +82,7 @@ module.exports = {
     }
 
     if (selectedImages.length === 0) {
-      return message.reply("⚠️ *Invalid selection. Try U1, U2, U3, U4, or UALL.*");
+      return message.reply("⚠️ Invalid selection. Try U1, U2, U3, U4, or UALL.");
     }
 
     try {
@@ -91,13 +91,13 @@ module.exports = {
       );
 
       message.reply({
-        body: `🖌️ *Here is your selection (${userChoices.join(", ")})—a glimpse into the world you imagined!*`,
+        body: `🖌️ Here is your selection ( ${userChoices.join(", ")} ) —a glimpse into the world you imagined!`,
         attachment: attachments,
       });
 
     } catch (error) {
       console.error(error);
-      message.reply("❌ *Something went wrong fetching the images. The AI muse is momentarily distracted. Try again!*");
+      message.reply("❌ Something went wrong fetching the images. The AI muse is momentarily distracted. Try again!");
     }
   },
 };
