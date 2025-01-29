@@ -95,7 +95,7 @@ module.exports = {
       const tinyUrl = tinyUrlResponse.data;
 
       await message.reply({
-        body: `🎉 Your ${format === "video" ? "Video" : "Song"} is Ready!\n\n🎥 **Title**: ${selected.title}\n📡 Channel: ${selected.channel}\n🔗 Download Link: ${tinyUrl}\n\nEnjoy this song and stay with us! 🎶`,
+        body: `🎉 Your ${format === "video" ? "Video" : "Song"} is Ready!\n\n🎥 Title: ${selected.title}\n📡 Channel: ${selected.channel}\n🔗 Download Link: ${tinyUrl}\n\nEnjoy this song and stay with us! 🎶`,
         attachment: fs.createReadStream(filePath)
       });
 
