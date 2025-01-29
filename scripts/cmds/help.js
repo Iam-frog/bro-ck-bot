@@ -40,7 +40,8 @@ module.exports = {
     en: {
       help: `╭─『 AI 』
 ╰─✧ hercai 
-╰─✧ gemini
+╰─✧ gemini 
+╰─✧ g
 
 ╭─『 VOICE-AI 』
 ╰─✧ vai
@@ -51,11 +52,14 @@ module.exports = {
 ╰─✧ cmd
 ╰─✧ eval
 
-╭─『 $ IMAGE 』
+╭─『 4 IMAGE 』
 ╰─✧ dai3 
 ╰─✧ fluxpro
 ╰─✧ pony
 ╰─✧ poli2
+
+╭─『 ANIME ART 』
+╰─✧ art
 
 ╭─『 IMAGINATION 』
 ╰─✧ imagine
