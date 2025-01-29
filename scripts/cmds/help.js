@@ -58,6 +58,9 @@ module.exports = {
 ╰─✧ pony
 ╰─✧ poli2
 
+╭─『 FAKEJOURNEY 』
+╰─✧ fj
+
 ╭─『 ANIME ART 』
 ╰─✧ art
 
@@ -65,8 +68,6 @@ module.exports = {
 ╰─✧ imagine
 ╰─✧ flux
 ╰─✧ poli
-
-╭─『 ANIME IMAGINATION 』
 ╰─✧ cr 
 
 ╭─『 USER 』
