@@ -1,6 +1,4 @@
 const axios = require("axios");
-const fs = require("fs");
-const path = require("path");
 
 module.exports = {
   config: {
@@ -16,8 +14,9 @@ module.exports = {
   onStart: async ({ message, args }) => {
     if (args.length < 2) {
       return message.reply(
-        "⚠️ Usage: `{pn} -v <query>` (for video) or `{pn} -a <query>` (for audio).\n\n" +
-        "Example:\n- `!yt -v fainted`\n- `!yt -a fainted`"
+        " YouTube Search & Downloader\n\n" +
+        " Usage: `{pn} -v <query>` (for video) or `{pn} -a <query>` (for audio)\n" +
+        " Example:\n- `yt -v faded`\n- `yt -a faded`"
       );
     }
 
@@ -30,28 +29,32 @@ module.exports = {
 
     const query = args.slice(1).join(" ");
     if (!query) {
-      return message.reply("❌ Please provide a search query.");
+      return message.reply("❌ Please enter a search query.");
     }
+
+    const waitingMsg = await message.reply("🔍 Searching for results... Please wait!");
 
     try {
       const searchUrl = `https://upol-dev-yt.onrender.com/search?query=${encodeURIComponent(query)}`;
       const searchResponse = await axios.get(searchUrl);
 
       if (!searchResponse.data.result || searchResponse.data.result.length === 0) {
-        return message.reply("❌ No results found. Try another keyword!");
+        message.unsend(waitingMsg.messageID);
+        return message.reply("🚫 No results found. Try searching with another keyword.");
       }
 
-      const results = searchResponse.data.result.slice(0, 6); // Limit results to 6
+      const results = searchResponse.data.result.slice(0, 6); 
 
-      let body = `🔎 Search Results (${format === "video" ? "Videos" : "Audios"}):\n\n`;
+      let body = `🔍 Search Results for: \`${query}\`\n\n`;
       results.forEach((item, index) => {
-        body += `🎉 ${index + 1}. ${item.title}\n` +
-                `🔗 Link: ${item.link}\n` +
-                `⏱️ Duration: ${item.duration} | 👁️ Views: ${item.views.toLocaleString()}\n\n`;
+        body += `${index + 1}. ${item.title}\n` +
+                `  [Watch on YouTube](${item.link})\n` +
+                `  Duration: ${item.duration}  |  Views: ${item.views.toLocaleString()}\n\n`;
       });
 
+      message.unsend(waitingMsg.messageID);
       const reply = await message.reply({
-        body: `${body}⚡ Reply with a number (1-6) to choose a ${format}!`
+        body: `${body}⚡ Reply with a number (1-6) to download the ${format}!`
       });
 
       global.GoatBot.onReply.set(reply.messageID, {
@@ -61,8 +64,9 @@ module.exports = {
         format
       });
     } catch (error) {
+      message.unsend(waitingMsg.messageID);
       console.error(error);
-      message.reply(`🚨 Error: Unable to search at the moment. Please try again later.\nDetails: ${error.message}`);
+      message.reply(`🚨 Error: Unable to search at the moment. Please try again later.\n🔍 Details: ${error.message}`);
     }
   },
 
@@ -72,46 +76,43 @@ module.exports = {
 
     const choice = parseInt(body.trim());
     if (isNaN(choice) || choice < 1 || choice > results.length) {
-      return message.reply("⚠️ Invalid Choice! Please pick a number between 1 and 6.");
+      return message.reply("⚠️ Invalid choice! Please select a number between 1 and 6.");
     }
 
     const selected = results[choice - 1];
     if (!selected) {
-      return message.reply("❌ Invalid selection. Please try again!");
+      return message.reply("❌ Invalid selection. Please try again.");
     }
 
     message.unsend(messageID);
+    const waitingMsg = await message.reply("📥 Preparing your download... Please wait!");
 
     try {
       const downloadUrl = `https://upol-dev-yt.onrender.com/download/${format}?url=${encodeURIComponent(selected.link)}`;
       const downloadResponse = await axios.get(downloadUrl);
 
       if (!downloadResponse.data.result || !downloadResponse.data.result.url) {
-        return message.reply("❌ Failed to fetch the download link. Try again later!");
+        message.unsend(waitingMsg.messageID);
+        return message.reply("🚫 Failed to fetch the download link. Try again later.");
       }
 
       const fileUrl = downloadResponse.data.result.url;
-      const fileExtension = format === "video" ? "mp4" : "mp3";
-      const fileName = `${selected.title.replace(/[<>:"/\\|?*]+/g, "")}.${fileExtension}`;
-      const filePath = path.join(__dirname, "cache", fileName);
+      const fileStream = await global.utils.getStreamFromURL(fileUrl);
 
-      // Download the file
-      const fileData = await axios.get(fileUrl, { responseType: "arraybuffer" });
-      fs.writeFileSync(filePath, fileData.data);
-
-      // Send the file as an attachment
+      message.unsend(waitingMsg.messageID);
       await message.reply({
-        body: `🎉 Your ${format === "video" ? "Video" : "Song"} is Ready! \n\n` +
-              `🎥 Title: ${selected.title}\n⏱️ Duration: ${selected.duration} | 👁️ Views: ${selected.views.toLocaleString()}\n\n` +
-              `Enjoy! 🎶`,
-        attachment: fs.createReadStream(filePath)
+        body: `🎉 Download Ready!\n\n` +
+              `Title: ${selected.title}\n` +
+              `Duration: ${selected.duration} | Views: ${selected.views.toLocaleString()}\n` +
+              `[Watch on YouTube](${selected.link})\n\n` +
+              `Enjoy your ${format === "video" ? "video" : "song"}!`,
+        attachment: fileStream
       });
 
-      // Delete the file after sending
-      fs.unlinkSync(filePath);
     } catch (error) {
+      message.unsend(waitingMsg.messageID);
       console.error(error);
-      message.reply(`🚨 Error: Unable to download your ${format}. Please try again later.\nDetails: ${error.message}`);
+      message.reply(`🚨 Error: Unable to download. Please try again later.\n🔍 Details: ${error.message}`);
     }
   }
 };
