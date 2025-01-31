@@ -3,7 +3,7 @@ const Data = {};
 
 module.exports = {
   config: {
-    name: "g",
+    name: "go",
     version: 2.0,
     author: "UPoL 🐔",
     longDescription: "Google ai ",
