@@ -46,7 +46,7 @@ module.exports = {
       }
 
       const response = await axios.get(`https://upol-gemini-main.onrender.com/geminiv2?prompt=${encodedPrompt}`);
-      const answer = response.data.answer;
+      const answer = response.data.response;
 
       message.reply({
         body: `${answer}`,
@@ -82,7 +82,7 @@ module.exports = {
       const encodedPrompt = encodeURIComponent(Data[chat]);
 
       const response = await axios.get(`https://upol-gemini-main.onrender.com/geminiv2?prompt=${encodedPrompt}`);
-      const answer = response.data.answer;
+      const answer = response.data.response;
 
       message.reply({
         body: `${answer}`,
