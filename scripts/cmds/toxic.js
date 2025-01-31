@@ -3,7 +3,7 @@ const Data = {};
 
 module.exports = {
   config: {
-    name: "g",
+    name: "toxic",
     version: 2.0,
     author: "UPoL 🐔",
     longDescription: "Google ai ",
@@ -13,6 +13,7 @@ module.exports = {
     },
   },
   onStart: async function ({ args, message, event, Reply, api }) {
+     try {
       const prompt = args.join(' ');
       const chat = event.senderID;
 
@@ -35,7 +36,7 @@ module.exports = {
       }
 
       const response = await axios.get(`https://upol-gpts-apis.onrender.com/toxic-ai?prompt=${encodedPrompt}`);
-      const answer = response.data.answer;
+      const answer = response.data.response;
 
       message.reply({
         body: `${answer}`,
@@ -71,7 +72,7 @@ module.exports = {
       const encodedPrompt = encodeURIComponent(Data[chat]);
 
       const response = await axios.get(`https://upol-gpts-apis.onrender.com/toxic-ai?prompt=${encodedPrompt}`);
-      const answer = response.data.answer;
+      const answer = response.data.response;
 
       message.reply({
         body: `${answer}`,
