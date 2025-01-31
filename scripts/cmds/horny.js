@@ -13,6 +13,7 @@ module.exports = {
     },
   },
   onStart: async function ({ args, message, event, Reply, api }) {
+    try {
       const prompt = args.join(' ');
       const chat = event.senderID;
 
