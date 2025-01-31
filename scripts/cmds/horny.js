@@ -35,7 +35,7 @@ module.exports = {
       }
 
       const response = await axios.get(`https://upol-gpts-apis.onrender.com/horny-ai?prompt=${encodedPrompt}`);
-      const answer = response.data.answer;
+      const answer = response.data.response;
 
       message.reply({
         body: `${answer}`,
@@ -71,7 +71,7 @@ module.exports = {
       const encodedPrompt = encodeURIComponent(Data[chat]);
 
       const response = await axios.get(`https://upol-gpts-apis.onrender.com/horny-ai?prompt=${encodedPrompt}`);
-      const answer = response.data.answer;
+      const answer = response.data.response;
 
       message.reply({
         body: `${answer}`,
