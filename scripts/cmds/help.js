@@ -42,32 +42,43 @@ module.exports = {
 ╰─✧ hercai 
 ╰─✧ gemini 
 ╰─✧ g
+╰─✧ horny
+╰─✧ toxic
+
 ╭─『 VOICE-AI 』
 ╰─✧ vai
+
 ╭─『 ADMIN 』
 ╰─✧ admin
 ╰─✧ adminonly
 ╰─✧ cmd
 ╰─✧ eval
+
 ╭─『 4 IMAGE 』
 ╰─✧ dai3 
 ╰─✧ fluxpro
 ╰─✧ pony
 ╰─✧ poli2
+
 ╭─『 FAKEJOURNEY 』
 ╰─✧ fj
+
 ╭─『 ANIME ART 』
 ╰─✧ art
+
 ╭─『 IMAGINATION 』
 ╰─✧ imagine
 ╰─✧ flux
 ╰─✧ poli
 ╰─✧ cr 
+
 ╭─『 USER 』
 ╰─✧ help
 ╰─✧ prefix
+
 ╭─『 UPTIME 』
 ╰─✧ up
+
 ╭─『 MEDIA 』
 ╰─✧ yt\n\n╭─『  » Total Cmds %4 cmds.\n╰─ » Type %5help <cmd> to learn.\n╰─ %6`,
       help2: "%1├───────✧\n╰─ » Currently, the bot has %2 commands that can be used\n╰─ » Total Cmds: %3 \n╰─ %4\n",
