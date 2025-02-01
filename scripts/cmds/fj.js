@@ -12,7 +12,7 @@ module.exports = {
       en: "Generate AI images based on your vision.",
     },
     category: "image",
-    role: 0,
+    role: 2,
     guide: {
       en: "{pn} <prompt>",
     },
