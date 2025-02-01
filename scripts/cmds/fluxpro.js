@@ -11,7 +11,7 @@ module.exports = {
       en: "Generate stunning AI images based on your input prompt.",
     },
     category: "image",
-    role: 0,
+    role: 2,
     guide: {
       en: "{pn} <prompt>",
     },
