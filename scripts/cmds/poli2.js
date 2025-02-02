@@ -4,23 +4,23 @@ const { getStreamFromURL } = global.utils;
 module.exports = {
   config: {
     name: "poli2",
-    version: "1.2",
+    version: "1.3",
     author: "UPoL 🐔",
     countDown: 0,
     longDescription: {
-      en: "Generate AI images with specific aspect ratio based on your prompt."
+      en: "Generate AI images with a default or custom aspect ratio based on your prompt."
     },
     category: "image",
     role: 0,
     guide: {
-      en: "{pn} <prompt> --ar <aspect ratio>\nDefault aspect ratio: 1:1"
+      en: "{pn} <prompt> --ar <aspect ratio> (optional)\nDefault aspect ratio: 1:1"
     }
   },
 
   onStart: async function ({ api, event, args, message }) {
     const input = args.join(' ').trim();
-
     const promptMatch = input.match(/^(.*?)\s*--ar\s*([\d:]+)/);
+    
     const prompt = promptMatch ? promptMatch[1].trim() : input;
     const ar = promptMatch ? promptMatch[2].trim() : "1:1"; 
 
@@ -29,8 +29,7 @@ module.exports = {
     }
 
     const waitMessage = await message.reply(
-      "✨ Creating Your Masterpiece...\n\n📜 Prompt:" +
-      `_${prompt}_\n📐 Aspect Ratio: _${ar}_\n\n⏳ Hang tight! This might take a few seconds...`
+      `✨ Creating Your Masterpiece...\n\n📜 Prompt:  _${prompt}_\n📐 Aspect Ratio:  _${ar}_\n\n⏳ Please wait...`
     );
 
     try {
@@ -38,15 +37,15 @@ module.exports = {
       const response = await axios.get(apiUrl);
       const { combineUrl, images } = response.data;
 
-      if (!combineUrl || !images || !images.length) {
-        await api.unsendMessage(waitMessage.messageID); 
+      if (!combineUrl || !images || images.length === 0) {
+        await api.unsendMessage(waitMessage.messageID);
         return message.reply("❌ Failed to generate images. Please try again.");
       }
 
-      await api.unsendMessage(waitMessage.messageID); 
+      await api.unsendMessage(waitMessage.messageID);
       message.reply(
         {
-          body: "✨ Image generated successfully!\n\n Reply with a number (1, 2, 3, or 4) to view individual images.",
+          body: "✨ Image generated successfully!\n\n💬 Reply with a number (1, 2, 3, or 4) to view individual images.",
           attachment: await getStreamFromURL(combineUrl, "combined.png"),
         },
         (err, info) => {
@@ -62,12 +61,12 @@ module.exports = {
       );
     } catch (error) {
       console.error(error);
-      await api.unsendMessage(waitMessage.messageID); 
+      await api.unsendMessage(waitMessage.messageID);
       message.reply("❌ An error occurred while generating images. Please try again.");
     }
   },
 
-  onReply: async function ({ api, event, Reply, args, message }) {
+  onReply: async function ({ api, event, Reply, message }) {
     const userChoice = parseInt(event.body.trim());
     const { author, images } = Reply;
 
@@ -87,7 +86,7 @@ module.exports = {
 
       const imageStream = await getStreamFromURL(selectedImage, `image${userChoice}.png`);
       message.reply({
-        body: `✅ **Here is your selected image (${userChoice}).**`,
+        body: `✅ Here is your selected image (${userChoice}).`,
         attachment: imageStream,
       });
     } catch (error) {
