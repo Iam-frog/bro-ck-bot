@@ -48,6 +48,10 @@ module.exports = {
 ╭─『 VOICE-AI 』
 ╰─✧ vai
 
+╭─『 GAME 』
+╰─✧ mathx
+╰─✧ quiz
+
 ╭─『 ADMIN 』
 ╰─✧ admin
 ╰─✧ adminonly
