@@ -39,7 +39,7 @@ module.exports = {
   langs: {
     en: {
       help: `╭─『 AI 』
-╰─✧ hercai ❌
+╰─✧ hercai ( not working ) 
 ╰─✧ gemini 
 ╰─✧ g
 ╰─✧ horny
@@ -59,22 +59,22 @@ module.exports = {
 ╰─✧ eval
 
 ╭─『 4 IMAGE 』
-╰─✧ dai3 ❌
-╰─✧ fluxpro ❌
-╰─✧ pony ❌
-╰─✧ poli2 ❌
+╰─✧ dai3 
+╰─✧ fluxpro 
+╰─✧ pony 
+╰─✧ poli2 
 
 ╭─『 FAKEJOURNEY 』
-╰─✧ fj ❌
+╰─✧ fj 
 
 ╭─『 ANIME ART 』
-╰─✧ art ❌
+╰─✧ art 
 
 ╭─『 IMAGINATION 』
-╰─✧ imagine ❌
+╰─✧ imagine ( not working )
 ╰─✧ flux
 ╰─✧ poli
-╰─✧ cr ❌
+╰─✧ cr ( not working )
 
 ╭─『 USER 』
 ╰─✧ help
@@ -84,8 +84,8 @@ module.exports = {
 ╰─✧ up
 
 ╭─『 MEDIA 』
-╰─✧ sing
-╰─✧ yt\n\n╭─『  » Total Cmds %4 cmds.\n╰─ » Type %5help <cmd> to learn.\n╰─ %6`,
+╰─✧ sing ( not working )
+╰─✧ yt\n\n╭─『  » Specially thanks for my admin. \n╰─ » Type %5help <cmd> to learn.`,
       help2: "%1├───────✧\n╰─ » Currently, the bot has %2 commands that can be used\n╰─ » Total Cmds: %3 \n╰─ %4\n",
       commandNotFound: "Command \"%1\" does not exist",
       getInfoCommand: "» \"%1\"\n» Author: %8\n» Description: %2\n» Guide: %9",
