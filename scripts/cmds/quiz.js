@@ -4,7 +4,7 @@ module.exports = {
   config: {
     name: "quiz",
     aliases: ["trivia"],
-    version: "1.0",
+    version: "1.1",
     author: "UPoL 🐔",
     countDown: 5,
     role: 0,
@@ -16,7 +16,7 @@ module.exports = {
     },
     category: "game",
     guide: {
-      en: "{pn} [category]\nIf no category is specified, available categories will be shown."
+      en: "{pn} [category | list]\nUse without category to get a random quiz\nUse 'list' to view available categories"
     },
   },
 
@@ -29,7 +29,7 @@ module.exports = {
       api.unsendMessage(Reply.messageID).catch(console.error);
 
       const rewardCoins = Math.floor(Math.random() * (1000 - 500 + 1)) + 500;
-      const rewardExp = Math.floor(Math.random() * (10 - 5 + 1)) + 5; 
+      const rewardExp = Math.floor(Math.random() * (10 - 5 + 1)) + 5;
 
       const senderID = event.senderID;
       const userData = await usersData.get(senderID);
@@ -39,35 +39,42 @@ module.exports = {
         data: userData.data
       });
 
-      const msg = {
-        body: `✅ ${nameUser}, You've answered correctly!\nAnswer: ${correctAnswer}\nYou've received ${rewardCoins} coins and ${rewardExp} exp as a reward!`
-      };
-      return api.sendMessage(msg, event.threadID, event.messageID);
+      return api.sendMessage(
+        `✅ ${nameUser}, you answered correctly!\nAnswer: ${correctAnswer}\n\nYou've earned:\n- 💰 ${rewardCoins} coins\n- ✨ ${rewardExp} EXP`,
+        event.threadID, event.messageID
+      );
     } else {
       api.unsendMessage(Reply.messageID).catch(console.error);
-      const msg = `${nameUser}, The answer is wrong! The correct answer is: ${correctAnswer}`;
-      return api.sendMessage(msg, event.threadID);
+      return api.sendMessage(`${nameUser}, that’s incorrect!\nCorrect answer: ${correctAnswer}`, event.threadID);
     }
   },
 
   onStart: async function ({ api, event, args, usersData }) {
     const { threadID, messageID } = event;
 
-    if (args.length === 0) {
-      try {
-        const response = await axios.get('https://upol-quiz-game.onrender.com/categories');
-        const categories = response.data.categories.join(", ");
-        return api.sendMessage(`Available categories: ${categories}`, threadID, messageID);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-        return api.sendMessage("An error occurred while fetching the available categories. Please try again later.", threadID, messageID);
-      }
-    }
-
-    const category = args.join(" ").toLowerCase();
     try {
-      const response = await axios.get(`https://upol-quiz-game.onrender.com/categories/${category}`);
-      const quizData = response.data.questions[Math.floor(Math.random() * response.data.questions.length)];
+      const response = await axios.get('https://upol-quiz-game.onrender.com/categories');
+      const categories = response.data.categories;
+
+      if (args[0]?.toLowerCase() === "list") {
+        const listMsg = `Quiz Categories:\n\n` +
+          categories.map((cat, i) => `• ${i + 1}. ${cat.charAt(0).toUpperCase() + cat.slice(1)}`).join("\n") +
+          `\n\nUse: quiz <category>`;
+        return api.sendMessage(listMsg, threadID, messageID);
+      }
+
+      let category;
+      if (args.length === 0) {
+        category = categories[Math.floor(Math.random() * categories.length)];
+      } else {
+        category = args.join(" ").toLowerCase();
+        if (!categories.includes(category)) {
+          return api.sendMessage(`❌ Invalid category!\nUse “quiz list” to see available categories.`, threadID, messageID);
+        }
+      }
+
+      const quizRes = await axios.get(`https://upol-quiz-game.onrender.com/categories/${category}`);
+      const quizData = quizRes.data.questions[Math.floor(Math.random() * quizRes.data.questions.length)];
       const { question, options, answer } = quizData;
       const namePlayerReact = await usersData.getName(event.senderID);
 
@@ -77,28 +84,26 @@ module.exports = {
       }
 
       const msg = {
-        body: `❓ ${question}\n${optionsText}\n\nType the correct option (e.g., A, B, C, D):`
+        body: `${category.toUpperCase()}\n___________________\n❓ ${question}\n\n${optionsText}\nReply with the correct option (A, B, C, D):`
       };
 
       api.sendMessage(msg, threadID, async (error, info) => {
-        if (error) {
-          console.error("Error sending quiz message:", error);
-          return;
+        if (!error) {
+          global.GoatBot.onReply.set(info.messageID, {
+            type: "reply",
+            commandName: "quiz",
+            author: event.senderID,
+            messageID: info.messageID,
+            questionData: quizData,
+            correctAnswer: answer,
+            nameUser: namePlayerReact
+          });
         }
-
-        global.GoatBot.onReply.set(info.messageID, {
-          type: "reply",
-          commandName: "quiz",
-          author: event.senderID,
-          messageID: info.messageID,
-          questionData: quizData,
-          correctAnswer: answer,
-          nameUser: namePlayerReact
-        });
       });
-    } catch (error) {
-      console.error("Error fetching quiz question:", error);
-      return api.sendMessage("An error occurred while fetching the quiz question. Please try again later.", threadID, messageID);
+
+    } catch (err) {
+      console.error("Error:", err);
+      return api.sendMessage("❌ Failed to fetch quiz or categories. Please try again later.", threadID, messageID);
     }
   }
 };
