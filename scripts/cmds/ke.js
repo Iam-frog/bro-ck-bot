@@ -7,7 +7,7 @@ module.exports = {
     name: "info",
     aliases: ["dev", "creator", "owner"],
     version: "5.5",
-    author: "Upol Saha",
+    author: "UPoL 🐔",
     role: 0,
     shortDescription: { en: "Dev info with system details" },
     longDescription: { en: "Sends animated dev card with confusing code" },
@@ -24,7 +24,7 @@ module.exports = {
     const p = global.GoatBot?.config?.prefix || "!";
     const b = global.GoatBot?.config?.name || "GoatBot";
     const d = "U P O L    S A H A";
-    const × = "Z OX Æ";
+    const o = "Z OX Æ";
     const u = "https://www.facebook.com/zox.upol";
     const g = "https://github.com/upoldev";
     const t = "https://t.me/@upoldev";
@@ -36,7 +36,7 @@ module.exports = {
       `———————————————`,
       `${$(0x1f464)} Dev: ${d}`,
       `${$(0x1f4bb)} Bot: ${b}`,
-      `${$(0x1f4b6)} Nickname: ${×}`,
+      `${$(0x1f4b6)} Nickname: ${o}`,
       `${$(0x1f4cc)} Prefix: ${p}`,
       `${$(0x1f680)} Node.js: ${n}`,
       `${$(0x1f5a5)} Network IP: ${f}`,
